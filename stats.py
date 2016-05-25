@@ -34,7 +34,6 @@ def dependency_check():
 
 
 def main():
-
     # fedmsg config
     config = fedmsg.config.load_config()
     fedmsg.meta.make_processors(**config)
