@@ -1,4 +1,3 @@
-import argparse
 import fedmsg
 import fedmsg.meta
 import json
@@ -11,15 +10,51 @@ class stats:
         self.values = dict()
         self.values['user'] = None
         self.values['delta'] = 604800
-        self.values['rows_per_page'] = 100
+        self.values['rows_per_page'] = 10
         self.values['not_category'] = 'meetbot'
         self.baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
+        self.full_url = ""
 
     def return_url(self):
         data = urllib.urlencode(self.values)
-        full_url = self.baseurl + '?' + data
-        return full_url
+        self.full_url = self.baseurl + '?' + data
+        return self.full_url
 
+    def return_json(self):
+        self.full_url = self.return_url()
+        response = urllib.urlopen(self.full_url)
+        raw_json = response.read()
+        unicode_json = json.loads(raw_json)
+        return unicode_json
+
+    def show_logs(self):
+        unicode_json = self.return_json()
+        for activity in unicode_json['raw_messages']:
+            print activity
+
+    def save_json(self, filename):
+        unicode_json = self.return_json()
+        filename = str(filename) + '.json'
+        try:
+            fp = open(filename, 'w')
+        except IOError:
+            print "[!] Could not write into directory. Check Permissions"
+        fp.write(unicode_json)
+
+    def show_json(self):
+        print self.return_json()
+
+    def return_categories(self):
+        categories = dict()
+        unicode_json = self.return_json()
+        for activity in unicode_json['raw_messages']:
+            print activity['topic']
+            category = activity['topic'].split('.')[3]
+            if category in categories.keys():
+                categories[category] += 1
+            else:
+                categories[category] = 1
+        return categories
 
 def dependency_check():
     # Without fedmsg-meta, the program will not display the human readable log
@@ -31,32 +66,3 @@ def dependency_check():
         return False
     else:
         return True
-
-
-def main():
-    # fedmsg config
-    config = fedmsg.config.load_config()
-    fedmsg.meta.make_processors(**config)
-
-    # Argument Parser initialization
-    parser = argparse.ArgumentParser(description='Fedora GSoC stats gatherer')
-    parser.add_argument('--user', '-u', help='FAS username', required=True)
-    parser.add_argument('--weeks', '-w', help='Time in weeks', default=1)
-    args = parser.parse_args()
-
-    userstats = stats()
-    userstats.values['user'] = args.user
-    userstats.values['delta'] = int(args.weeks) * 604800
-
-    full_url = userstats.return_url()
-    response = urllib.urlopen(full_url)
-    raw_json = response.read()
-    unicode_json = json.loads(raw_json)
-
-    for activity in unicode_json['raw_messages']:
-        print fedmsg.meta.msg2repr(activity)
-
-
-if __name__ == '__main__':
-    if(dependency_check()):
-        main()
