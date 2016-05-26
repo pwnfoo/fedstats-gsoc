@@ -2,6 +2,8 @@ import argparse
 import fedmsg
 import fedmsg.meta
 from stats import *
+from output import *
+
 
 def main():
     # fedmsg config
@@ -16,12 +18,18 @@ def main():
     parser.add_argument('--output', '-o', help="Output name", default='stats')
     args = parser.parse_args()
 
+    if not dependency_check:
+        return 1
+
     userstats = stats()
+    out_options = draw()
     userstats.values['user'] = args.user
     userstats.values['delta'] = int(args.weeks) * 604800
-    userstats.return_categories()
+    out_options.mode = args.mode
+    out_options.filename = args.output
 
+    c = userstats.return_categories()
+    out_options.show_output(c, "categories")
 
 if __name__ == '__main__':
-    if(dependency_check()):
         main()
