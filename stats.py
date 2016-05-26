@@ -1,7 +1,6 @@
 import fedmsg
 import fedmsg.meta
 import json
-import os
 import urllib
 
 
@@ -54,14 +53,3 @@ class stats:
             else:
                 categories[category] = 1
         return categories
-
-def dependency_check():
-    # Without fedmsg-meta, the program will not display the human readable log
-    return_val = os.system('rpm -q python2-fedmsg-meta-fedora-infrastructure >> \
-    /dev/null')
-    if(return_val != 0):
-        print "[!] Please install \'python2-fedmsg-meta-fedora-infrastructure\' \
-        package to continue."
-        return False
-    else:
-        return True

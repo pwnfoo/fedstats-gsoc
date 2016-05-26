@@ -1,8 +1,21 @@
 import argparse
 import fedmsg
 import fedmsg.meta
-from stats import *
-from output import *
+from stats import stats
+from output import draw
+import os
+
+
+def dependency_check():
+    # Without fedmsg-meta, the program will not display the human readable log
+    return_val = os.system('rpm -q python2-fedmsg-meta-fedora-infrastructure >> \
+    /dev/null')
+    if(return_val != 0):
+        print "[!] Please install \'python2-fedmsg-meta-fedora-infrastructure\' \
+        package to continue."
+        return False
+    else:
+        return True
 
 
 def main():
@@ -18,18 +31,25 @@ def main():
     parser.add_argument('--output', '-o', help="Output name", default='stats')
     args = parser.parse_args()
 
-    if not dependency_check:
-        return 1
+    # Check if the user has fedmsg-meta package installed
+    dependency_check()
 
+    # Object inits and argument processing
     userstats = stats()
-    out_options = draw()
+    output = draw()
     userstats.values['user'] = args.user
     userstats.values['delta'] = int(args.weeks) * 604800
-    out_options.mode = args.mode
-    out_options.filename = args.output
+    output.mode = args.mode
+    output.filename = args.output
 
-    c = userstats.return_categories()
-    out_options.show_output(c, "categories")
+    # For json and text output, we need the JSON rather than the categories
+    if args.mode.lower() == 'svg' or args.mode.lower() == 'png':
+        out_obj = userstats.return_categories()
+    elif args.mode.lower() == 'json' or args.mode.lower() == 'text':
+        out_obj = userstats.return_json()
+
+    output.show_output(out_obj,"Title")
+
 
 if __name__ == '__main__':
         main()

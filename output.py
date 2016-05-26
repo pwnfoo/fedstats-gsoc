@@ -1,4 +1,5 @@
 import pygal
+import json
 from stats import *
 
 
@@ -24,9 +25,26 @@ class draw:
             pie_chart.add(str(key), percent)
         return pie_chart
 
+    def show_logs(self, unicode_json):
+        for activity in unicode_json['raw_messages']:
+            print fedmsg.meta.msg2subtitle(activity)
+
+    def save_json(self, unicode_json):
+        filename = self.filename + '.json'
+        try:
+            with open(filename, 'w') as outfile:
+                json.dump(unicode_json, outfile)
+        except IOError:
+            print "[!] Could not write into directory. Check Permissions"
+
     def show_output(self, input_json, title):
-        temp_obj = self.draw_pie(input_json, title)
         if self.mode.lower() == 'svg':
+            temp_obj = self.draw_pie(input_json, title)
             self.draw_svg(temp_obj)
         elif self.mode.lower() == 'png':
+            temp_obj = self.draw_pie(input_json, title)
             self.draw_png(temp_obj)
+        elif self.mode.lower() == 'json':
+            self.save_json(input_json)
+        elif self.mode.lower() == 'text':
+            self.show_logs(input_json)
