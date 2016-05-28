@@ -9,26 +9,29 @@ class stats:
         self.values = dict()
         self.values['user'] = None
         self.values['delta'] = 604800
-        self.values['rows_per_page'] = 10
+        self.values['rows_per_page'] = 100
         self.values['not_category'] = 'meetbot'
         self.baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
         self.full_url = ''
 
     def return_url(self):
+        print "[*] Generating user URL.."
         data = urllib.urlencode(self.values)
         self.full_url = self.baseurl + '?' + data
         return self.full_url
 
     def return_json(self):
         self.full_url = self.return_url()
+        print '[*] Grabbing datagrepper values..'
         response = urllib.urlopen(self.full_url)
         raw_json = response.read()
         unicode_json = json.loads(raw_json)
         return unicode_json
-    
+
     def return_categories(self):
         categories = dict()
         unicode_json = self.return_json()
+        print "[*] Identifying Categories.."
         for activity in unicode_json['raw_messages']:
             category = activity['topic'].split('.')[3]
             if category in categories.keys():

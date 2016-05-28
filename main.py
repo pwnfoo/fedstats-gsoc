@@ -48,8 +48,10 @@ def main():
     elif args.mode.lower() == 'json' or args.mode.lower() == 'text':
         out_obj = userstats.return_json()
 
-    output.show_output(out_obj,"Title")
+    title = "Category distribution for user " + str(args.user)
+    output.show_output(out_obj, title)
 
 
 if __name__ == '__main__':
         main()
+        print "[*] All done :)"

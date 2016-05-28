@@ -1,5 +1,6 @@
 import pygal
 import json
+import os
 from stats import *
 
 
@@ -12,6 +13,7 @@ class draw:
     def draw_svg(self, graph_obj):
         filename = self.filename + '.svg'
         graph_obj.render_to_file(filename)
+        os.system('firefox '+filename)
 
     def draw_png(self, graph_obj):
         fname = self.filename + '.png'
@@ -24,7 +26,7 @@ class draw:
             percent = input_json[key] / float(sum(input_json.values())) * 100
             pie_chart.add(str(key), percent)
         return pie_chart
-        
+
     def show_logs(self, unicode_json):
         for activity in unicode_json['raw_messages']:
             print fedmsg.meta.msg2subtitle(activity)
@@ -38,6 +40,7 @@ class draw:
             print "[!] Could not write into directory. Check Permissions"
 
     def show_output(self, input_json, title):
+        print '[*] Readying Output..'
         if self.mode.lower() == 'svg':
             temp_obj = self.draw_pie(input_json, title)
             self.draw_svg(temp_obj)
