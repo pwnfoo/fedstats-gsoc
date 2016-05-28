@@ -24,7 +24,7 @@ class draw:
         pie_chart.title = str(title)
         for key in input_json:
             percent = input_json[key] / float(sum(input_json.values())) * 100
-            pie_chart.add(str(key), percent)
+            pie_chart.add(str(key), round(percent,2))
         return pie_chart
 
     def show_logs(self, unicode_json):
