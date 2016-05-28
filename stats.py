@@ -26,23 +26,6 @@ class stats:
         unicode_json = json.loads(raw_json)
         return unicode_json
 
-    def show_logs(self):
-        unicode_json = self.return_json()
-        for activity in unicode_json['raw_messages']:
-            print activity
-
-    def save_json(self, filename):
-        unicode_json = self.return_json()
-        filename = str(filename) + '.json'
-        try:
-            fp = open(filename, 'w')
-        except IOError:
-            print "[!] Could not write into directory. Check Permissions"
-        fp.write(unicode_json)
-
-    def show_json(self):
-        print self.return_json()
-
     def return_categories(self):
         categories = dict()
         unicode_json = self.return_json()

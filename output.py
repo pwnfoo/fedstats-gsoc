@@ -7,7 +7,7 @@ class draw:
 
     def __init__(self):
         self.mode = 'text'
-        self.filename = 'chart'
+        self.filename = 'stats'
 
     def draw_svg(self, graph_obj):
         filename = self.filename + '.svg'
@@ -24,7 +24,7 @@ class draw:
             percent = input_json[key] / float(sum(input_json.values())) * 100
             pie_chart.add(str(key), percent)
         return pie_chart
-
+604,800
     def show_logs(self, unicode_json):
         for activity in unicode_json['raw_messages']:
             print fedmsg.meta.msg2subtitle(activity)
