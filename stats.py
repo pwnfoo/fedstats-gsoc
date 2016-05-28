@@ -25,7 +25,7 @@ class stats:
         raw_json = response.read()
         unicode_json = json.loads(raw_json)
         return unicode_json
-
+    
     def return_categories(self):
         categories = dict()
         unicode_json = self.return_json()

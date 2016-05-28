@@ -24,7 +24,7 @@ class draw:
             percent = input_json[key] / float(sum(input_json.values())) * 100
             pie_chart.add(str(key), percent)
         return pie_chart
-604,800
+        
     def show_logs(self, unicode_json):
         for activity in unicode_json['raw_messages']:
             print fedmsg.meta.msg2subtitle(activity)
