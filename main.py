@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import argparse
 import fedmsg
 import fedmsg.meta
@@ -11,8 +13,8 @@ def dependency_check():
     return_val = os.system('rpm -q python2-fedmsg-meta-fedora-infrastructure >> \
     /dev/null')
     if(return_val != 0):
-        print "[!] Please install \'python2-fedmsg-meta-fedora-infrastructure\' \
-        package to continue."
+        print("[!] Please install \'python2-fedmsg-meta-fedora-infrastructure\' \
+        package to continue.")
         return False
     else:
         return True
@@ -54,4 +56,4 @@ def main():
 
 if __name__ == '__main__':
         main()
-        print "[*] All done :)"
+        print("[*] All done :)")

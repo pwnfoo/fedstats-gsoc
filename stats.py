@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import fedmsg
 import fedmsg.meta
 import json
@@ -14,19 +16,19 @@ class stats:
         self.baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
 
     def return_json(self):
-        print '[*] Grabbing datagrepper values..'
+        print('[*] Grabbing datagrepper values..')
         response = requests.get(self.baseurl, params=self.values)
         unicode_json = response.json()
-        print unicode_json
+        print(unicode_json)
         return unicode_json
 
     def return_categories(self):
         categories = dict()
         unicode_json = self.return_json()
-        print "[*] Identifying Categories.."
+        print("[*] Identifying Categories..")
         for activity in unicode_json['raw_messages']:
             category = activity['topic'].split('.')[3]
-            if category in categories.keys():
+            if category in list(categories.keys()):
                 categories[category] += 1
             else:
                 categories[category] = 1

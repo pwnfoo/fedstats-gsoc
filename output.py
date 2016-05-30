@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import pygal
 import json
 import os
@@ -29,7 +31,7 @@ class draw:
 
     def show_logs(self, unicode_json):
         for activity in unicode_json['raw_messages']:
-            print fedmsg.meta.msg2subtitle(activity)
+            print(fedmsg.meta.msg2subtitle(activity))
 
     def save_json(self, unicode_json):
         filename = self.filename + '.json'
@@ -37,10 +39,10 @@ class draw:
             with open(filename, 'w') as outfile:
                 json.dump(unicode_json, outfile)
         except IOError:
-            print "[!] Could not write into directory. Check Permissions"
+            print("[!] Could not write into directory. Check Permissions")
 
     def show_output(self, input_json, title):
-        print '[*] Readying Output..'
+        print('[*] Readying Output..')
         if self.mode.lower() == 'svg':
             temp_obj = self.draw_pie(input_json, title)
             self.draw_svg(temp_obj)
