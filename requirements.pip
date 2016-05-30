@@ -1,0 +1,7 @@
+# These packages are required to run the tool    
+# Usage : sudo pip install -r requirements.pip
+
+tinycss>=0.3
+cairosvg>=1.0.20
+cssselect>=0.9.1
+cairocffi>=0.7.2
