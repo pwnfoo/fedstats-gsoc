@@ -1,3 +1,5 @@
 tinycss
 cairosvg
 cssselect
+fedmsg
+pygal
