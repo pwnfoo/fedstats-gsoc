@@ -39,7 +39,7 @@ def main():
     # Object inits and argument processing
     userstats = stats()
     output = draw()
-    userstats.values['user'] = args.user
+    userstats.values['user'] = str(args.user)
     userstats.values['delta'] = int(args.weeks) * 604800
     output.mode = args.mode
     output.filename = args.output
@@ -47,8 +47,15 @@ def main():
     # For json and text output, we need the JSON rather than the categories
     if args.mode.lower() == 'svg' or args.mode.lower() == 'png':
         out_obj = userstats.return_categories()
+        # To handle user with no activity
+        if len(out_obj):
+            print ('[!] No activity found for user ' + str(args.user))
+            return
     elif args.mode.lower() == 'json' or args.mode.lower() == 'text':
         out_obj = userstats.return_json()
+        if out_obj['total'] == 0:
+            print ('[!] No activity found for user ' + str(args.user))
+            return
 
     title = "Category distribution for user " + str(args.user)
     output.show_output(out_obj, title)
@@ -56,4 +63,3 @@ def main():
 
 if __name__ == '__main__':
         main()
-        print("[*] All done :)")

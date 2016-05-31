@@ -19,7 +19,6 @@ class stats:
         print('[*] Grabbing datagrepper values..')
         response = requests.get(self.baseurl, params=self.values)
         unicode_json = response.json()
-        print(unicode_json)
         return unicode_json
 
     def return_categories(self):
