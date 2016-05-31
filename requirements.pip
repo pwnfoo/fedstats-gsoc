@@ -1,7 +1,10 @@
 # These packages are required to run the tool    
 # Usage : sudo pip install -r requirements.pip
 
-tinycss>=0.3
 cairosvg>=1.0.20
 cssselect>=0.9.1
 cairocffi>=0.7.2
+fedmsg>=0.17.2
+fedmsg-meta-fedora-infrastructure>=0.17.4
+pygal>=2.2.2
+tinycss>=0.3
