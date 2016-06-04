@@ -4,6 +4,7 @@ import fedmsg
 import fedmsg.meta
 import json
 import requests
+from collections import Counter
 
 
 class stats:
@@ -18,17 +19,17 @@ class stats:
     def return_json(self):
         print('[*] Grabbing datagrepper values..')
         response = requests.get(self.baseurl, params=self.values)
-        unicode_json = response.json()
+        unicode_json = json.loads(response.text)
         return unicode_json
 
     def return_categories(self):
-        categories = dict()
+        cat_list = list()
+        categories = Counter()
         unicode_json = self.return_json()
         print("[*] Identifying Categories..")
         for activity in unicode_json['raw_messages']:
-            category = activity['topic'].split('.')[3]
-            if category in list(categories.keys()):
+            # Split the topic using . param , extract the 4th word and append
+            cat_list.append(activity['topic'].split('.')[3])
+            for category in cat_list:
                 categories[category] += 1
-            else:
-                categories[category] = 1
         return categories
