@@ -26,15 +26,17 @@ def main():
     args = parser.parse_args()
 
     # Object inits and argument processing
-
     if args.interactive:
         stats.values['user'] = str(raw_input("Enter FAS Username : "))
         stats.values['delta'] = 604800 * int(raw_input("Number of weeks stats required for : "))
+        stats.category = str(raw_input("Enter category : "))
         output.mode = str(raw_input("Type of output : "))
         output.filename = str(raw_input("Output file : "))
+
     elif args.user is None:
         print(colored("[!] ", 'red') + "Username is required. Use -h for help")
         return 1
+
     else:
         stats.values['user'] = str(args.user)
         stats.values['delta'] = int(args.weeks) * 604800
@@ -45,6 +47,8 @@ def main():
     # For json and text output, we need the JSON rather than the categories
     if output.mode == 'svg' or output.mode == 'png':
         draw_obj = stats.return_categories()
+        draw_obj2 = stats.return_subcategories(stats.category)
+        interactions = stats.return_interactions(draw_obj2)
         # To handle user with no activity
         if len(draw_obj) == 0:
             print ('[!] No activity found for user ' + str(args.user))
@@ -52,13 +56,19 @@ def main():
 
     elif args.mode.lower() == 'json' or args.mode.lower() == 'text':
         draw_obj = stats.return_json()
+        # To handle user with no activity
         if draw_obj['total'] == 0:
             print ('[!] No activity found for user ' + str(args.user))
             return 1
 
-    # output.show_category_output(draw_obj, str(stats.values['user']), 'bar')
-    stats.return_interactions(['issue','pull-request'])
-
+    output.generate_graph(draw_obj, "Topic distribution of " + str(stats.values['user']), 'pie')
+    output.generate_graph(draw_obj2, "Category: " + str(stats.category).capitalize()\
+        + "\nUser: " + str(stats.values['user']), 'bar')
+        
+    if interactions != 1:
+        for keys in interactions:
+            output.generate_graph(interactions[keys], "Interaction with "+str(keys)+"\nCategory:  "\
+            + str(stats.category).capitalize(), 'pie')
 
 if __name__ == '__main__':
     main()

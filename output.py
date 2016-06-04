@@ -11,18 +11,20 @@ mode = 'text'
 filename = 'stats'
 category_json = None
 subcategory_json = None
+count = 0
 
 def draw_svg(graph_obj):
-    fname = filename + '.svg'
+    global count
+    fname = filename + str(count) + '.svg'
     graph_obj.render_to_file(fname)
-    os.system('firefox '+fname)
+    os.system('firefox ' + fname)
 
 def draw_category_png(graph_obj):
-    fname = filename + '.png'
+    fname = filename + str(count) + '.png'
     graph_obj.render_to_png(filename=fname)
 
 def draw_pie(output_json, title):
-    pie_chart = pygal.Pie(inner_radius=0.4)
+    pie_chart = pygal.Pie(inner_radius=0.4, width=500, height=500)
     pie_chart.title = str(title)
     for key in output_json:
         percent = output_json[key] / float(sum(output_json.values())) * 100
@@ -30,21 +32,21 @@ def draw_pie(output_json, title):
     return pie_chart
 
 def draw_bar(output_json, title):
-    bar_chart = pygal.Bar()
+    bar_chart = pygal.Bar(width=500, height=500)
     bar_chart.title = str(title)
     for key in output_json:
         bar_chart.add(str(key), output_json[key])
     return bar_chart
 
 def save_text(unicode_json, username):
-    fname = filename + '.txt'
+    fname = filename + str(count) + '.txt'
     fout = open(fname, 'w')
 
     # Entire Log Write
     fout.write("*****Full log for user " + username + "*****\n\n\n")
     for activity in unicode_json['raw_messages']:
         fout.write(fedmsg.meta.msg2subtitle(activity)+"\n")
-
+'''
     # Category-wise Log
     fout.write("\n\n*****Category-wise activities*****\n\n")
     for category in stats.return_categories():
@@ -52,9 +54,9 @@ def save_text(unicode_json, username):
             if category == activity['topic'].split('.')[3]:
                 fout.write()
 
-
+'''
 def save_json(unicode_json):
-    filename = filename + '.json'
+    filename = filename + str(count) + '.json'
     try:
         with open(filename, 'w') as outfile:
             json.dump(unicode_json, outfile)
@@ -62,8 +64,9 @@ def save_json(unicode_json):
         print("[!] Could not write into directory. Check Permissions")
 
 def generate_graph(output_json, username, gtype):
+    global count
     print('[*] Readying Output..')
-
+    count += 1
     if mode.lower() == 'svg':
         if gtype == 'pie':
             graph_obj = draw_pie(output_json, username)
@@ -80,11 +83,3 @@ def generate_graph(output_json, username, gtype):
 
     elif mode.lower() == 'text':
         save_text(output_json, username)
-
-def show_subcategory_output(subcategory_json, username, gtype):
-    subcategory_json = subcategory_json
-    self.generate_graph(subcategory_json, username, gtype)
-
-def show_category_output(category_json, username, gtype):
-    category_json = category_json
-    generate_graph(category_json, username, gtype)
