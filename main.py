@@ -5,8 +5,8 @@ import os
 import fedmsg
 import argparse
 import fedmsg.meta
-from stats import stats
-from output import draw
+import stats
+import output
 from termcolor import colored
 
 
@@ -17,49 +17,48 @@ def main():
 
     # Argument Parser initialization
     parser = argparse.ArgumentParser(description='Fedora GSoC stats gatherer')
-    parser.add_argument('--user', '-u', help='FAS username')
-    parser.add_argument('--weeks', '-w', help='Time in weeks', default=1)
-    parser.add_argument('--mode', '-m', help="Type of Output", default='text')
-    parser.add_argument('--output', '-o', help="Output name", default='stats')
-    parser.add_argument('--interactive', '-i', help="Enable interactive mode",
-                                                    action='store_true')
+    parser.add_argument('--user', help='FAS username')
+    parser.add_argument('--weeks', help='Time in weeks', default=1)
+    parser.add_argument('--mode', help="Type of Output", default='text')
+    parser.add_argument('--output', help="Output name", default='stats')
+    parser.add_argument('--category', help="Category for graphs", default=None)
+    parser.add_argument('--interactive', '-i', help="Enable interactive mode", action='store_true')
     args = parser.parse_args()
 
     # Object inits and argument processing
-    userstats = stats()
-    output = draw()
 
     if args.interactive:
-        userstats.values['user'] = str(raw_input("Enter FAS Username : "))
-        userstats.values['delta'] = 604800 * int(raw_input("Number of weeks stats \
-required for : "))
+        stats.values['user'] = str(raw_input("Enter FAS Username : "))
+        stats.values['delta'] = 604800 * int(raw_input("Number of weeks stats required for : "))
         output.mode = str(raw_input("Type of output : "))
         output.filename = str(raw_input("Output file : "))
     elif args.user is None:
-        print(colored("[!] ", 'red') + "FAS Username is required.")
+        print(colored("[!] ", 'red') + "Username is required. Use -h for help")
         return 1
     else:
-        userstats.values['user'] = str(args.user)
-        userstats.values['delta'] = int(args.weeks) * 604800
+        stats.values['user'] = str(args.user)
+        stats.values['delta'] = int(args.weeks) * 604800
+        stats.category = args.category
         output.mode = args.mode
         output.filename = args.output
 
     # For json and text output, we need the JSON rather than the categories
     if output.mode == 'svg' or output.mode == 'png':
-        out_obj = userstats.return_categories()
+        draw_obj = stats.return_categories()
         # To handle user with no activity
-        if len(out_obj) == 0:
-            print ('[!] No activity found for user ' + str(args.user))
-            return 1
-    elif args.mode.lower() == 'json' or args.mode.lower() == 'text':
-        out_obj = userstats.return_json()
-        if out_obj['total'] == 0:
+        if len(draw_obj) == 0:
             print ('[!] No activity found for user ' + str(args.user))
             return 1
 
-    title = "Category distribution for user " + str(args.user)
-    output.show_output(out_obj, title)
+    elif args.mode.lower() == 'json' or args.mode.lower() == 'text':
+        draw_obj = stats.return_json()
+        if draw_obj['total'] == 0:
+            print ('[!] No activity found for user ' + str(args.user))
+            return 1
+
+    # output.show_category_output(draw_obj, str(stats.values['user']), 'bar')
+    stats.return_interactions(['issue','pull-request'])
 
 
 if __name__ == '__main__':
-        main()
+    main()
