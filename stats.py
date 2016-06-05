@@ -6,7 +6,7 @@ import json
 import requests
 from collections import Counter
 
-
+# This dictionary will be passed as param to requests later
 values = dict()
 values['user'] = None
 values['delta'] = 604800
@@ -22,8 +22,9 @@ def return_user():
 def return_json():
     global unicode_json
     print('[*] Grabbing datagrepper values..')
-    response = requests.get(baseurl, params=values)
-    unicode_json = json.loads(response.text)
+    if len(unicode_json) == 0:
+        response = requests.get(baseurl, params=values)
+        unicode_json = json.loads(response.text)
     return unicode_json
 
 def return_categories():
@@ -67,7 +68,7 @@ def return_interactions(subcategories):
                     interaction_dict[object].append(activity['topic'].split('.')[5])
             except IndexError:
                 print("[!] That category doesn't have any more interactions!")
-                return 1
+                return {None:None}
 
     # Changing list to a counter
     for key in interaction_dict:

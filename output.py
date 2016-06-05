@@ -17,7 +17,7 @@ def draw_svg(graph_obj):
     global count
     fname = filename + str(count) + '.svg'
     graph_obj.render_to_file(fname)
-    os.system('firefox ' + fname)
+    os.system("firefox " + fname)
 
 def draw_category_png(graph_obj):
     fname = filename + str(count) + '.png'
@@ -39,22 +39,29 @@ def draw_bar(output_json, title):
     return bar_chart
 
 def save_text(unicode_json, username):
+    global count
     fname = filename + str(count) + '.txt'
     fout = open(fname, 'w')
 
-    # Entire Log Write
-    fout.write("*****Full log for user " + username + "*****\n\n\n")
-    for activity in unicode_json['raw_messages']:
-        fout.write(fedmsg.meta.msg2subtitle(activity)+"\n")
-'''
-    # Category-wise Log
-    fout.write("\n\n*****Category-wise activities*****\n\n")
+    # Category-wise Log, markdown ready
+    fout.write("\n\n### Category-wise activities\n\n")
     for category in stats.return_categories():
+        flag = True
+        count = 0
         for activity in unicode_json['raw_messages']:
             if category == activity['topic'].split('.')[3]:
-                fout.write()
+                count += 1
+                # Print the category once
+                if flag is True:
+                    fout.write("\n\n#### Category : "+category.capitalize()+"\n")
+                    flag = False
+                fout.write("* "+fedmsg.meta.msg2subtitle(activity)+"\n")
+        fout.write("\n Total Entries in category : " + str(count) + "")
+        fout.write("\n Percentage participation in category : " + \
+                            str(round(100*count/float(unicode_json['total']),2)))
 
-'''
+
+
 def save_json(unicode_json):
     filename = filename + str(count) + '.json'
     try:
@@ -63,7 +70,7 @@ def save_json(unicode_json):
     except IOError:
         print("[!] Could not write into directory. Check Permissions")
 
-def generate_graph(output_json, username, gtype):
+def generate_graph(output_json, username, gtype=None):
     global count
     print('[*] Readying Output..')
     count += 1
