@@ -17,6 +17,10 @@ One-liner uses the classic argument parsing method to generate output. This is u
 
 ####Arguments :
 
+`--interactive / -i`
+
+* Launches the tool in interactive mode. Does not require any further arguments.
+
 `--user / -u`
 
 * Takes any FAS Username as argument. There is no default value and the tool will throw an error if this argument is left blank/not used.
@@ -27,7 +31,7 @@ One-liner uses the classic argument parsing method to generate output. This is u
 
 `--mode / -m`
 
-* Takes a single word string input. Supported input modes are : json, text, svg and png. The default value is `text`. *(More features will be added soon)*
+* Takes a single word string input. Supported input modes are : json, text, csv, markdown, svg and png. The default value is `text`. *(More features will be added soon)*
 
 `--category / -c`
 
