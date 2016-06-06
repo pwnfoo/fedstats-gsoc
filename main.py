@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from six.moves import input
 
 import os
 import fedmsg
@@ -8,7 +9,6 @@ import fedmsg.meta
 import stats
 import output
 from termcolor import colored
-from six.moves import input
 
 
 def main():
@@ -30,6 +30,7 @@ def main():
     # Object inits and argument processing
     if args.interactive:
         stats.values['user'] = str(input("Enter FAS Username : "))
+        stats.weeks = args.weeks
         stats.values['delta'] = 604800 * int(input("Number of weeks stats required for : "))
         stats.category = str(input("Enter category : "))
         output.mode = str(input("Type of output : "))
@@ -44,11 +45,12 @@ def main():
         stats.values['user'] = str(args.user)
         stats.values['delta'] = int(args.weeks) * 604800
         stats.category = args.category
+        stats.weeks = args.weeks
         output.mode = args.mode
         output.filename = args.output
 
     # For json and text output, we need the JSON rather than the categories
-    if output.mode == 'svg' or output.mode == 'png':
+    if output.mode.lower() in ['png', 'svg', 'csv']:
         draw_obj = stats.return_categories()
 
         # To handle user with no activity
@@ -74,7 +76,7 @@ def main():
                 output.generate_graph(interactions[keys], "Interaction with "+str(keys)+"\nCategory:  "\
                 + str(stats.category).capitalize(), stats.category+str(i_count), 'pie')
 
-    elif output.mode.lower() == 'json' or output.mode.lower() == 'text':
+    elif output.mode.lower() in ['json','text','markdown']:
         draw_obj = stats.return_json()
         # To handle user with no activity
         if draw_obj['total'] == 0:

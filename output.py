@@ -1,12 +1,13 @@
 from __future__ import absolute_import
 from __future__ import print_function
-
+from datetime import date, timedelta
 import fedmsg.meta
 import fedmsg
 import stats
 import pygal
 import json
 import grip
+import csv
 import os
 
 
@@ -46,6 +47,25 @@ def draw_bar(output_json, title):
         bar_chart.add(str(key), output_json[key])
     return bar_chart
 
+def save_csv(output_json):
+    fname = filename + '_main.csv'
+    fout = open(fname, 'w')
+    csvw = csv.writer(fout)
+    csvw.writerows(
+                    [['Start Date : ', date.today() - timedelta(days=stats.weeks*7)],
+                    ['End Date  : ', date.today()],
+                    ['']]
+                    )
+    data = [['Username','Category', 'Activity Count', 'Percentage'],[]]
+    for key in output_json:
+        percent = round(output_json[key] / float(sum(output_json.values())) * 100, 2)
+        data.append([stats.values['user'], key.capitalize(), output_json[key], str(percent)+'%'])
+    data.append([''])
+    data.append(['', 'Total : ', sum(output_json.values())])
+    csvw.writerows(data)
+    fout.close()
+
+
 def save_text(unicode_json):
     fname = filename + '_main.txt'
     fout = open(fname, 'w')
@@ -67,7 +87,7 @@ def save_text(unicode_json):
         fout.write("\nPercentage participation in category : " + \
                             str(round(100*actcount/float(unicode_json['total']),2)) + "\n")
     fout.close()
-    
+
 def save_markdown(unicode_json):
     fname = filename + '_main.md'
     fout = open(fname, 'w')
@@ -93,6 +113,8 @@ def save_markdown(unicode_json):
 
 def render_report(fname):
     grip.export(fname, title="Summer Coding Statistics")
+
+
 
 def save_json(unicode_json):
     filename = filename + '_main.json'
@@ -126,6 +148,9 @@ def generate_graph(output_json, title, category=None, gtype=None):
 
     elif mode.lower() == 'text':
         save_text(output_json)
+
+    elif mode.lower() == 'csv':
+        save_csv(output_json)
 
     elif mode.lower() == 'markdown':
         save_markdown(output_json)
