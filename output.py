@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 from __future__ import print_function
-from stats import *
-import pygal
+
+import fedmsg.meta
+import fedmsg
 import stats
+import pygal
 import json
+import grip
 import os
 
 
@@ -11,16 +14,21 @@ mode = 'text'
 filename = 'stats'
 category_json = None
 subcategory_json = None
-count = 0
+cat = None
 
 def draw_svg(graph_obj):
-    global count
-    fname = filename + str(count) + '.svg'
+    if cat is None :
+        fname = filename + '_main' + '.svg'
+    else :
+        fname = filename + "_" + cat + '.svg'
     graph_obj.render_to_file(fname)
     os.system("firefox " + fname)
 
-def draw_category_png(graph_obj):
-    fname = filename + str(count) + '.png'
+def draw_png(graph_obj):
+    if cat is None :
+        fname = filename + '_main' + '.png'
+    else :
+        fname = filename + "_" + cat + '.png'
     graph_obj.render_to_png(filename=fname)
 
 def draw_pie(output_json, title):
@@ -38,55 +46,86 @@ def draw_bar(output_json, title):
         bar_chart.add(str(key), output_json[key])
     return bar_chart
 
-def save_text(unicode_json, username):
-    global count
-    fname = filename + str(count) + '.txt'
+def save_text(unicode_json):
+    fname = filename + '_main.txt'
+    fout = open(fname, 'w')
+
+    # Category-wise Log, markdown ready
+    fout.write("\n\n*** Category-wise activities ***\n\n")
+    for category in stats.return_categories():
+        flag = True
+        actcount = 0
+        for activity in unicode_json['raw_messages']:
+            if category == activity['topic'].split('.')[3]:
+                actcount += 1
+                # Print the category once
+                if flag is True:
+                    fout.write("\n\n** Category : "+category.capitalize()+" **\n")
+                    flag = False
+                fout.write("* "+fedmsg.meta.msg2subtitle(activity)+"\n")
+        fout.write("\nTotal Entries in category : " + str(actcount) + "\n")
+        fout.write("\nPercentage participation in category : " + \
+                            str(round(100*actcount/float(unicode_json['total']),2)) + "\n")
+    fout.close()
+    
+def save_markdown(unicode_json):
+    fname = filename + '_main.md'
     fout = open(fname, 'w')
 
     # Category-wise Log, markdown ready
     fout.write("\n\n### Category-wise activities\n\n")
     for category in stats.return_categories():
         flag = True
-        count = 0
+        actcount = 0
         for activity in unicode_json['raw_messages']:
             if category == activity['topic'].split('.')[3]:
-                count += 1
+                actcount += 1
                 # Print the category once
                 if flag is True:
                     fout.write("\n\n#### Category : "+category.capitalize()+"\n")
                     flag = False
                 fout.write("* "+fedmsg.meta.msg2subtitle(activity)+"\n")
-        fout.write("\n Total Entries in category : " + str(count) + "")
-        fout.write("\n Percentage participation in category : " + \
-                            str(round(100*count/float(unicode_json['total']),2)))
+        fout.write("\n* **Total Entries in category :** " + str(actcount) + "\n")
+        fout.write("\n* **Percentage participation in category :** " + \
+                            str(round(100*actcount/float(unicode_json['total']),2)) + "\n")
+    fout.close()
+    render_report(fname)
 
-
+def render_report(fname):
+    grip.export(fname, title="Summer Coding Statistics")
 
 def save_json(unicode_json):
-    filename = filename + str(count) + '.json'
+    filename = filename + '_main.json'
     try:
         with open(filename, 'w') as outfile:
             json.dump(unicode_json, outfile)
     except IOError:
         print("[!] Could not write into directory. Check Permissions")
 
-def generate_graph(output_json, username, gtype=None):
-    global count
+def generate_graph(output_json, title, category=None, gtype=None):
+    global cat
+    cat = category
+    graph_obj = None
     print('[*] Readying Output..')
-    count += 1
     if mode.lower() == 'svg':
         if gtype == 'pie':
-            graph_obj = draw_pie(output_json, username)
+            graph_obj = draw_pie(output_json, title)
         elif gtype == 'bar':
-            graph_obj = draw_bar(output_json, username)
+            graph_obj = draw_bar(output_json, title)
         draw_svg(graph_obj)
 
     elif mode.lower() == 'png':
-        graph_obj = draw_pie(output_json, username)
-        draw_category_png(graph_obj)
+        if gtype == 'pie':
+            graph_obj = draw_pie(output_json, title)
+        elif gtype == 'bar':
+            graph_obj = draw_bar(output_json, title)
+        draw_png(graph_obj)
 
     elif mode.lower() == 'json':
         save_json(output_json)
 
     elif mode.lower() == 'text':
-        save_text(output_json, username)
+        save_text(output_json)
+
+    elif mode.lower() == 'markdown':
+        save_markdown(output_json)

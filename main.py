@@ -17,7 +17,7 @@ def main():
     fedmsg.meta.make_processors(**config)
 
     # Argument Parser initialization
-    parser = argparse.ArgumentParser(description='Fedora GSoC stats gatherer')
+    parser = argparse.ArgumentParser(description='Summer Coding stats gatherer')
     parser.add_argument('--user', '-u', help='FAS username')
     parser.add_argument('--weeks','-w', help='Time in weeks', default=1)
     parser.add_argument('--mode', '-m', help="Type of Output", default='text')
@@ -25,6 +25,7 @@ def main():
     parser.add_argument('--category', '-c', help="Category for graphs", default=None)
     parser.add_argument('--interactive', '-i', help="Enable interactive mode", action='store_true')
     args = parser.parse_args()
+    args.output = args.user
 
     # Object inits and argument processing
     if args.interactive:
@@ -52,29 +53,32 @@ def main():
 
         # To handle user with no activity
         if len(draw_obj) == 0:
-            print ('[!] No activity found for user ' + str(args.user))
+            print (colored("[!] ", 'red') + 'No activity found for user ' + str(args.user))
             return 1
-        # Generate the output graphs
-        output.generate_graph(draw_obj, "Topic distribution of " + str(stats.values['user']), 'pie')
+
+        # Generate the output graph objects required for calling generate_graph
+        output.generate_graph(draw_obj, "Topic distribution of " + str(stats.values['user']), stats.category, 'pie')
         draw_obj2 = stats.return_subcategories(stats.category)
         interactions = stats.return_interactions(draw_obj2)
-        # Check if a category input was given
-        if not stats.category is None :
-            output.generate_graph(draw_obj2, "Category: " + str(stats.category).capitalize()\
-            + "\nUser: " + str(stats.values['user']), 'bar')
 
+        # Check if a category input was given and generate category graph
+        if not stats.category is None :
+            output.generate_graph(draw_obj2, "Category: " + stats.category.capitalize()\
+            + "\nUser: " + stats.values['user'], stats.category+"0", 'bar')
+
+        i_count = 0
         # Check if the sub-sub-category exists
         if not None in list(interactions.keys()):
             for keys in interactions:
+                i_count += 1
                 output.generate_graph(interactions[keys], "Interaction with "+str(keys)+"\nCategory:  "\
-                + str(stats.category).capitalize(), 'pie')
-
+                + str(stats.category).capitalize(), stats.category+str(i_count), 'pie')
 
     elif output.mode.lower() == 'json' or output.mode.lower() == 'text':
         draw_obj = stats.return_json()
         # To handle user with no activity
         if draw_obj['total'] == 0:
-            print ('[!] No activity found for user ' + str(args.user))
+            print (colored("[!] ", 'red') + 'No activity found for user ' + str(args.user))
             return 1
         output.generate_graph(draw_obj, str(stats.values['user']))
 
