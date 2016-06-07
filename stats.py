@@ -13,20 +13,20 @@ values['delta'] = 604800
 values['rows_per_page'] = 100
 values['not_category'] = 'meetbot'
 category = None
+weeks = 0
 baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
 unicode_json={}
 
-def return_user():
-    return values['user']
-
+# Checks if unicode_json is empty, pulls datagrepper values and returns the json
 def return_json():
     global unicode_json
-    print('[*] Grabbing datagrepper values..')
     if len(unicode_json) == 0:
+        print('[*] Grabbing datagrepper values..')
         response = requests.get(baseurl, params=values)
         unicode_json = json.loads(response.text)
     return unicode_json
 
+# Analyzes the JSON and return categories present as a list.
 def return_categories():
     cat_list = list()
     categories = Counter()
@@ -39,6 +39,7 @@ def return_categories():
         categories[category] += 1
     return categories
 
+# Given a category, looks for subcategories in the category and returns a sub-category counter.
 def return_subcategories(category):
     subcat_list = list()
     subcategories = Counter()
@@ -47,11 +48,13 @@ def return_subcategories(category):
         if category == activity['topic'].split('.')[3]:
             subcat_list.append(activity['topic'].split('.')[4])
 
+    # Converts the list into a counter.
     for subcategory in subcat_list:
             subcategories[subcategory] += 1
     return subcategories
 
-
+# Gets the subcategories as a counter, analyzes it for further activities - named interactions.
+# Returns a counter with the found interactions
 def return_interactions(subcategories):
     interaction_dict = dict()
     interaction_list = list()

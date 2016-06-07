@@ -10,13 +10,15 @@ import grip
 import csv
 import os
 
-
-mode = 'text'
-filename = 'stats'
-category_json = None
+# Default global variables
 subcategory_json = None
+category_json = None
+filename = 'stats'
+csv_init = False
+mode = 'text'
 cat = None
 
+# Gets a drawable object argument and renders an SVG Image of it.
 def draw_svg(graph_obj):
     if cat is None :
         fname = filename + '_main' + '.svg'
@@ -25,6 +27,7 @@ def draw_svg(graph_obj):
     graph_obj.render_to_file(fname)
     os.system("firefox " + fname)
 
+# Gets a drawable object argument and renders a PNG image of it.
 def draw_png(graph_obj):
     if cat is None :
         fname = filename + '_main' + '.png'
@@ -32,6 +35,7 @@ def draw_png(graph_obj):
         fname = filename + "_" + cat + '.png'
     graph_obj.render_to_png(filename=fname)
 
+# Generates a drawable pie chart object from a dictionary passed.
 def draw_pie(output_json, title):
     pie_chart = pygal.Pie(inner_radius=0.4, width=500, height=500)
     pie_chart.title = str(title)
@@ -40,6 +44,7 @@ def draw_pie(output_json, title):
         pie_chart.add(str(key), round(percent, 2))
     return pie_chart
 
+# Generates a drawable pie chart object from a dictionary passed.
 def draw_bar(output_json, title):
     bar_chart = pygal.Bar(width=500, height=500)
     bar_chart.title = str(title)
@@ -47,30 +52,44 @@ def draw_bar(output_json, title):
         bar_chart.add(str(key), output_json[key])
     return bar_chart
 
+# Generates CSV report for the user from the dictionary passed
 def save_csv(output_json):
+    global csv_init,cat
     fname = filename + '_main.csv'
-    fout = open(fname, 'w')
+    fout = open(fname, 'a')
     csvw = csv.writer(fout)
-    csvw.writerows(
-                    [['Start Date : ', date.today() - timedelta(days=stats.weeks*7)],
-                    ['End Date  : ', date.today()],
-                    ['']]
-                    )
+
+    # Write the dates into CSV
+    if not csv_init :
+        csvw.writerows  (
+                        [['Start Date : ', date.today() - timedelta(days=stats.weeks*7)],
+                        ['End Date  : ', date.today()],
+                        ['']]
+                        )
+        csv_init = True
+
+    # Initial heading row
     data = [['Username','Category', 'Activity Count', 'Percentage'],[]]
     for key in output_json:
         percent = round(output_json[key] / float(sum(output_json.values())) * 100, 2)
-        data.append([stats.values['user'], key.capitalize(), output_json[key], str(percent)+'%'])
+        if cat is not None and cat.capitalize() != key.capitalize():
+            data.append([stats.values['user'], cat.capitalize() + "." + \
+                        key.capitalize(), output_json[key], str(percent)+'%'])
+        else:
+            data.append([stats.values['user'], key.capitalize(), output_json[key], str(percent)+'%'])
+
     data.append([''])
     data.append(['', 'Total : ', sum(output_json.values())])
+    data.append([''])
     csvw.writerows(data)
     fout.close()
 
-
+# Saves category-wise text report of a user.
 def save_text(unicode_json):
     fname = filename + '_main.txt'
     fout = open(fname, 'w')
 
-    # Category-wise Log, markdown ready
+    # Category-wise Log
     fout.write("\n\n*** Category-wise activities ***\n\n")
     for category in stats.return_categories():
         flag = True
@@ -88,6 +107,7 @@ def save_text(unicode_json):
                             str(round(100*actcount/float(unicode_json['total']),2)) + "\n")
     fout.close()
 
+# Saves the markdown version of the text log
 def save_markdown(unicode_json):
     fname = filename + '_main.md'
     fout = open(fname, 'w')
@@ -111,11 +131,11 @@ def save_markdown(unicode_json):
     fout.close()
     render_report(fname)
 
+# WIP - Renders HTML from markdown
 def render_report(fname):
     grip.export(fname, title="Summer Coding Statistics")
 
-
-
+# Saves the JSON as a file.
 def save_json(unicode_json):
     filename = filename + '_main.json'
     try:
@@ -124,6 +144,7 @@ def save_json(unicode_json):
     except IOError:
         print("[!] Could not write into directory. Check Permissions")
 
+# Identifies categories, and generates drawable / file objects for all the above functions.
 def generate_graph(output_json, title, category=None, gtype=None):
     global cat
     cat = category
@@ -135,22 +156,19 @@ def generate_graph(output_json, title, category=None, gtype=None):
         elif gtype == 'bar':
             graph_obj = draw_bar(output_json, title)
         draw_svg(graph_obj)
-
     elif mode.lower() == 'png':
         if gtype == 'pie':
             graph_obj = draw_pie(output_json, title)
         elif gtype == 'bar':
             graph_obj = draw_bar(output_json, title)
         draw_png(graph_obj)
-
     elif mode.lower() == 'json':
         save_json(output_json)
-
     elif mode.lower() == 'text':
         save_text(output_json)
-
     elif mode.lower() == 'csv':
         save_csv(output_json)
-
     elif mode.lower() == 'markdown':
         save_markdown(output_json)
+    else:
+        print("[!] That output mode is not supported! Check README for help.")
