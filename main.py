@@ -49,7 +49,7 @@ def main():
     else:
         stats.values['user'] = str(args.user).lower()
         stats.values['delta'] = int(args.weeks) * 604800
-        stats.category = args.category.lower()
+        stats.category = args.category
         stats.weeks = int(args.weeks)
         output.mode = args.mode.lower()
         output.filename = args.output.lower()
