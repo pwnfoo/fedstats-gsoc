@@ -12,6 +12,7 @@ values['user'] = None
 values['delta'] = 604800
 values['rows_per_page'] = 100
 values['not_category'] = 'meetbot'
+values['page'] = 1
 category = None
 weeks = 0
 baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
@@ -20,10 +21,24 @@ unicode_json={}
 # Checks if unicode_json is empty, pulls datagrepper values and returns the json
 def return_json():
     global unicode_json
+    total_pages = 1
+    if category is not None :
+        values['category'] = category
     if len(unicode_json) == 0:
         print('[*] Grabbing datagrepper values..')
         response = requests.get(baseurl, params=values)
         unicode_json = json.loads(response.text)
+        total_pages = unicode_json['pages']
+        print ("Total pages found : " + str(total_pages))
+        while total_pages > 1:
+            values['page'] += 1
+            print("  [*] Pulling data from page " + str(values['page']))
+            response = requests.get(baseurl, params=values)
+            paginated_json = json.loads(response.text)
+            for activity in paginated_json['raw_messages'] :
+                unicode_json['raw_messages'].append(activity)
+            total_pages -= 1
+
     return unicode_json
 
 # Analyzes the JSON and return categories present as a list.

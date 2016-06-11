@@ -137,9 +137,9 @@ def render_report(fname):
 
 # Saves the JSON as a file.
 def save_json(unicode_json):
-    filename = filename + '_main.json'
+    fname = filename + '_main.json'
     try:
-        with open(filename, 'w') as outfile:
+        with open(fname, 'w') as outfile:
             json.dump(unicode_json, outfile)
     except IOError:
         print("[!] Could not write into directory. Check Permissions")
