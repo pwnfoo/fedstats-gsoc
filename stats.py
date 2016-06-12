@@ -13,7 +13,7 @@ values['delta'] = 604800
 values['rows_per_page'] = 100
 values['not_category'] = 'meetbot'
 values['page'] = 1
-category = None
+category = ''
 weeks = 0
 baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
 unicode_json={}
@@ -22,23 +22,36 @@ unicode_json={}
 def return_json():
     global unicode_json
     total_pages = 1
-    if category is not None :
-        values['category'] = category
+
+    # Only pull the values from datagrepper if it's the first run
     if len(unicode_json) == 0:
         print('[*] Grabbing datagrepper values..')
-        response = requests.get(baseurl, params=values)
+
+        # If the user is set as all, we filter it using the provided category, if any
+        if category != '' and values['user'] == 'all':
+            values['category'] = category
+        # If the user value is passed as all, remove it from the dict and pass arguments
+        if values['user'] == 'all':
+            temp_dict = values
+            del(temp_dict['user'])
+            response = requests.get(baseurl, params=temp_dict)
+        else:
+            response = requests.get(baseurl, params=values)
         unicode_json = json.loads(response.text)
         total_pages = unicode_json['pages']
         print ("Total pages found : " + str(total_pages))
+
+        # If multiple pages exist, get them all.
         while total_pages > 1:
             values['page'] += 1
             print("  [*] Pulling data from page " + str(values['page']))
             response = requests.get(baseurl, params=values)
             paginated_json = json.loads(response.text)
+            # Pull data from multiple pages and append them to the main JSON
             for activity in paginated_json['raw_messages'] :
                 unicode_json['raw_messages'].append(activity)
             total_pages -= 1
-
+    print(unicode_json)
     return unicode_json
 
 # Analyzes the JSON and return categories present as a list.

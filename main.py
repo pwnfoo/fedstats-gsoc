@@ -71,7 +71,7 @@ def main():
         # Check if a category input was given and generate the specific category graph
         if not stats.category is None :
             output.generate_graph(draw_obj2, "Category: " + stats.category.capitalize()\
-            + "\nUser: " + stats.values['user'], stats.category, 'bar')
+            + "\nUser: " + args.user, stats.category, 'bar')
 
         # Check if the sub-sub-category exists and generate it's graph
         if not None in list(interactions.keys()):
@@ -87,7 +87,7 @@ def main():
         if draw_obj['total'] == 0:
             print (colored("[!] ", 'red') + 'No activity found for user ' + str(args.user))
             return 1
-        output.generate_graph(draw_obj, stats.values['user'])
+        output.generate_graph(draw_obj, args.user)
 
 
 
