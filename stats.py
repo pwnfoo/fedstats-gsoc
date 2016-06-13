@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import fedmsg
 import fedmsg.meta
+import calendar
 import json
 import requests
 from collections import Counter
@@ -13,10 +14,21 @@ values['delta'] = 604800
 values['rows_per_page'] = 100
 values['not_category'] = 'meetbot'
 values['page'] = 1
+values['size'] = 'small'
 category = ''
+start = ''
+end = ''
 weeks = 0
 baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
 unicode_json={}
+
+def return_epoch(time):
+    if time == '':
+        return ''
+    tup = map(int,time.split('/'))
+    l = (tup[2], tup[0], tup[1], 0, 0, 0)
+    epochs = calendar.timegm(l)
+    return (int(epochs))
 
 # Checks if unicode_json is empty, pulls datagrepper values and returns the json
 def return_json():
@@ -30,9 +42,13 @@ def return_json():
         # If the user is set as all, we filter it using the provided category, if any
         if category != '' and values['user'] == 'all':
             values['category'] = category
+        if start != '' and end != '' :
+            values['start'] = return_epoch(start)
+            values['end'] = return_epoch(end)
+            del(values['delta'])
         # If the user value is passed as all, remove it from the dict and pass arguments
         if values['user'] == 'all':
-            temp_dict = values
+            temp_dict = dict(values)
             del(temp_dict['user'])
             response = requests.get(baseurl, params=temp_dict)
         else:
@@ -51,7 +67,6 @@ def return_json():
             for activity in paginated_json['raw_messages'] :
                 unicode_json['raw_messages'].append(activity)
             total_pages -= 1
-    print(unicode_json)
     return unicode_json
 
 # Analyzes the JSON and return categories present as a list.

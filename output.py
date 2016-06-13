@@ -33,7 +33,7 @@ def draw_png(graph_obj):
         fname = filename + '_main' + '.png'
     else :
         fname = filename + "_" + cat + '.png'
-    graph_obj.render_to_png(filename=fname)
+    graph_obj.render_to_png(fname)
 
 # Generates a drawable pie chart object from a dictionary passed.
 def draw_pie(output_json, title):
@@ -62,9 +62,9 @@ def save_csv(output_json):
     # Write the dates into CSV
     if not csv_init :
         csvw.writerows  (
-                        [['Start Date : ', date.today() - timedelta(days=stats.weeks*7)],
-                        ['End Date  : ', date.today()],
-                        ['']]
+                            [['Start Date : ', stats.start],
+                            ['End Date  : ', stats.end],
+                            ['']]
                         )
         csv_init = True
 
@@ -78,6 +78,7 @@ def save_csv(output_json):
         else:
             data.append([stats.values['user'], key.capitalize(), output_json[key], str(percent)+'%'])
 
+    # Insert blank lines and total
     data.append([''])
     data.append(['', 'Total : ', sum(output_json.values())])
     data.append([''])
@@ -111,7 +112,6 @@ def save_text(unicode_json):
 def save_markdown(unicode_json):
     fname = filename + '_main.md'
     fout = open(fname, 'w')
-
     # Category-wise Log, markdown ready
     fout.write("\n\n### Category-wise activities\n\n")
     for category in stats.return_categories():
@@ -131,7 +131,7 @@ def save_markdown(unicode_json):
     fout.close()
     render_report(fname)
 
-# WIP - Renders HTML from markdown
+# WIP - Renders HTML from markdown, invoked my markdown function atm.
 def render_report(fname):
     grip.export(fname, title="Summer Coding Statistics")
 

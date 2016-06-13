@@ -5,10 +5,13 @@ from six.moves import input
 import os
 import fedmsg
 import argparse
+import calendar
 import fedmsg.meta
 import stats
 import output
 from termcolor import colored
+
+
 
 
 def main():
@@ -27,6 +30,8 @@ def main():
     parser.add_argument('--mode', '-m', help="Type of Output", default='text')
     parser.add_argument('--output', '-o', help="Output name", default='stats')
     parser.add_argument('--category', '-c', help="Category for graphs", default=None)
+    parser.add_argument('--start', '-s', help="Start Date", default='')
+    parser.add_argument('--end','-e', help = "End Date", default='' )
     parser.add_argument('--interactive', '-i', help="Enable interactive mode", action='store_true')
     args = parser.parse_args()
     args.output = args.user
@@ -50,6 +55,8 @@ def main():
         stats.values['user'] = str(args.user).lower()
         stats.values['delta'] = int(args.weeks) * 604800
         stats.category = args.category
+        stats.start = args.start
+        stats.end = args.end
         stats.weeks = int(args.weeks)
         output.mode = args.mode.lower()
         output.filename = args.output.lower()
