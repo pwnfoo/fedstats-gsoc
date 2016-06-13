@@ -76,7 +76,7 @@ def main():
         interactions = stats.return_interactions(draw_obj2)
 
         # Check if a category input was given and generate the specific category graph
-        if not stats.category is None :
+        if stats.category != '' :
             output.generate_graph(draw_obj2, "Category: " + stats.category.capitalize()\
             + "\nUser: " + args.user, stats.category, 'bar')
 
