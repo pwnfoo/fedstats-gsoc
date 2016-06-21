@@ -4,7 +4,7 @@
 A simple CLI to tool to gather statistics from [datagrepper](https://apps.fedoraproject.org/datagrepper/)
 
 ### Description
-This tool will help anyone to  pull statistics of any registered Fedora user with an active [FAS](https://fedoraproject.org/wiki/Account_System) account.
+This tool helps pull statistics of any Fedora user with an active [FAS Account](https://fedoraproject.org/wiki/Account_System) account.
 
 ### Usage
 
@@ -25,9 +25,17 @@ One-liner uses the classic argument parsing method to generate output. This is u
 
 * Takes any FAS Username as argument. There is no default value and the tool will throw an error if this argument is left blank/not used.
 
+`--start / -s`
+
+* Takes a date as input in the format `MM/DD/YYYY` as input, that determines the starting date for which the data is required. This will be internally converted to the epoch time.
+
+`--end / -e`
+
+* Takes a date as input in the format `MM/DD/YYYY` as input, that determines the end date for which the data is required. This will be internally converted to the epoch time.
+
 `--weeks / -w`
 
-* Takes an integer value to represent number of weeks. Converts it into timedelta. (1week = 604,800 seconds). Default value is 1.
+* Takes an integer value to represent number of weeks. Converts it into timedelta. (1week = 604,800 seconds). Default value is 1. This values is ignored if the `--start` and `--end` values are set.
 
 `--mode / -m`
 
@@ -39,7 +47,11 @@ One-liner uses the classic argument parsing method to generate output. This is u
 
 `--output / -o`
 
-* Takes a single word string input. This will define the output file name. This option is to be combined with the `--mode/-m` argument. Please note that this option **DOES NOT** require an extension type. For instance, if you need an SVG output with the name `nobody.svg`, the --output flag should be set as `nobody` and not `nobody.svg`. the default value is `stats`
+* Takes a single word string input. This will define the output file name. This option is to be combined with the `--mode/-m` argument. Please note that this option **DOES NOT** require an extension type. For instance, if you need an SVG output with the name `nobody.svg`, the --output flag should be set as `nobody` and not `nobody.svg`. the default value is `stats`.
+
+`--logging / -l`
+
+* Stores the value as `True` if called, does not require any argument. When logging is set, all the logs from start to end / mentioned weeks will be pulled from datagrepper and dumped into a text file according to the naming convention.
 
 #### File naming convention
 
@@ -52,7 +64,7 @@ The naming convention is as follows :
 
 * The sub-category report (i.e the Category bar-chart) is named as `<username>_<category>.<extension>`
 
-* The further category interaction report (i.e The sub-categories chart) is named as `<username>_<category>_<sub_category>.<extension>` 
+* The further category interaction report (i.e The sub-categories chart) is named as `<username>_<category>_<sub_category>.<extension>`
 
 
 ####Examples

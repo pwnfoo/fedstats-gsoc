@@ -18,19 +18,24 @@ values['size'] = 'small'
 category = ''
 start = ''
 end = ''
+logs = False
 weeks = 0
 baseurl = "https://apps.fedoraproject.org/datagrepper/raw"
-unicode_json={}
+unicode_json = {}
+
 
 def return_epoch(time):
     if time == '':
         return ''
-    tup = map(int,time.split('/'))
+    tup = map(int, time.split('/'))
     l = (tup[2], tup[0], tup[1], 0, 0, 0)
     epochs = calendar.timegm(l)
     return (int(epochs))
 
-# Checks if unicode_json is empty, pulls datagrepper values and returns the json
+# Checks if unicode_json is empty, pulls datagrepper values and returns
+# the json
+
+
 def return_json():
     global unicode_json
     total_pages = 1
@@ -39,14 +44,16 @@ def return_json():
     if len(unicode_json) == 0:
         print('[*] Grabbing datagrepper values..')
 
-        # If the user is set as all, we filter it using the provided category, if any
+        # If the user is set as all, we filter it using the provided category,
+        # if any
         if category != '' and values['user'] == 'all':
             values['category'] = category
-        if start != '' and end != '' :
+        if start != '' and end != '':
             values['start'] = return_epoch(start)
             values['end'] = return_epoch(end)
             del(values['delta'])
-        # If the user value is passed as all, remove it from the dict and pass arguments
+        # If the user value is passed as all, remove it from the dict and pass
+        # arguments
         if values['user'] == 'all':
             temp_dict = dict(values)
             del(temp_dict['user'])
@@ -56,20 +63,22 @@ def return_json():
         unicode_json = json.loads(response.text)
         total_pages = unicode_json['pages']
         print ("Total pages found : " + str(total_pages))
-
+        total = total_pages
         # If multiple pages exist, get them all.
         while total_pages > 1:
+            print("  [*] Loading Page " + str(values['page']) + "/" + str(total))
             values['page'] += 1
-            print("  [*] Pulling data from page " + str(values['page']))
             response = requests.get(baseurl, params=values)
             paginated_json = json.loads(response.text)
             # Pull data from multiple pages and append them to the main JSON
-            for activity in paginated_json['raw_messages'] :
+            for activity in paginated_json['raw_messages']:
                 unicode_json['raw_messages'].append(activity)
             total_pages -= 1
     return unicode_json
 
 # Analyzes the JSON and return categories present as a list.
+
+
 def return_categories():
     cat_list = list()
     categories = Counter()
@@ -82,7 +91,9 @@ def return_categories():
         categories[category] += 1
     return categories
 
-# Given a category, looks for subcategories in the category and returns a sub-category counter.
+# Given a category, looks for subcategories in the category and returns a
+# sub-category counter.
+
 def return_subcategories(category):
     subcat_list = list()
     subcategories = Counter()
@@ -93,11 +104,13 @@ def return_subcategories(category):
 
     # Converts the list into a counter.
     for subcategory in subcat_list:
-            subcategories[subcategory] += 1
+        subcategories[subcategory] += 1
     return subcategories
 
-# Gets the subcategories as a counter, analyzes it for further activities - named interactions.
+# Gets the subcategories as a counter, analyzes it for further activities
 # Returns a counter with the found interactions
+
+
 def return_interactions(subcategories):
     interaction_dict = dict()
     interaction_list = list()
@@ -110,11 +123,13 @@ def return_interactions(subcategories):
     for activity in unicode_json['raw_messages']:
         for object in subcategories:
             try:
-                if object == activity['topic'].split('.')[4] and activity['topic'].split('.')[5]:
-                    interaction_dict[object].append(activity['topic'].split('.')[5])
+                if object == activity['topic'].split('.')[4] and activity[
+                        'topic'].split('.')[5]:
+                    interaction_dict[object].append(
+                        activity['topic'].split('.')[5])
             except IndexError:
                 print("[!] That category doesn't have any more interactions!")
-                return {None:None}
+                return {None: None}
 
     # Changing list to a counter
     for key in interaction_dict:

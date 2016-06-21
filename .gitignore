@@ -7,4 +7,6 @@
 *.json
 *.html
 *.csv
+*.md
+*.gource
 
