@@ -36,17 +36,18 @@ def assign_values(args):
 
 
 def add_arguments(parser):
-    parser.add_argument('--user', '-u', help='FAS username')
-    parser.add_argument('--weeks', '-w', help='Time in weeks', default=1)
+    parser.add_argument('--category', '-c', help="Sub Category", default='')
+    parser.add_argument('--end', '-e', help="End Date", default='')
+    parser.add_argument('--group', '-g', help="FAS Group", default='')
+    parser.add_argument('--interactive', '-i', help="Enable interactive mode",
+                            action='store_true')
+    parser.add_argument('--log', '-l', help="Enable full log reporting",
+                            action='store_true')
     parser.add_argument('--mode', '-m', help="Type of Output", default='text')
     parser.add_argument('--output', '-o', help="Output name", default='stats')
-    parser.add_argument('--category', '-c', help="Sub Category", default='')
     parser.add_argument('--start', '-s', help="Start Date", default='')
-    parser.add_argument('--end', '-e', help="End Date", default='')
-    parser.add_argument('--log', '-l', help="Enable full log reporting",
-                        action='store_true')
-    parser.add_argument('--interactive', '-i', help="Enable interactive mode",
-                        action='store_true')
+    parser.add_argument('--user', '-u', help='FAS username')
+    parser.add_argument('--weeks', '-w', help='Time in weeks', default=1)
 
 
 def main():
