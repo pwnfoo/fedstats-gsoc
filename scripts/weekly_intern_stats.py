@@ -16,7 +16,7 @@ def main():
 		os.system('python main.py -u %s -s 05/23/2016 -e 06/21/2016 -m svg -o %s/%s -c pagure' %(
 				intern, intern, intern))
 		# Markdown Report
-		os.system('python main.py -u %s -s 05/23/2016 -e 06/21/2016 -m markdown -o %s/README.md' %(
+		os.system('python main.py -u %s -s 05/23/2016 -e 06/23/2016 -m markdown -o %s/README.md' %(
                                 intern, intern))
 		# User Specific
 		if intern == 'dhanvi':
